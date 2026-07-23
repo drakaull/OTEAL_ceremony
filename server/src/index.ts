@@ -4,10 +4,12 @@ import cors from "cors";
 import path from "node:path";
 import fs from "node:fs";
 import { createServer } from "node:http";
+import { Server } from "socket.io";
 import { adminRouter } from "./routes/admin.js";
 import { categoriesRouter } from "./routes/categories.js";
 import { nomineesRouter } from "./routes/nominees.js";
 import { uploadRouter } from "./routes/upload.js";
+import { registerSocketHandlers } from "./realtime/socket.js";
 
 const uploadsDir = path.resolve("uploads");
 fs.mkdirSync(uploadsDir, { recursive: true });
@@ -33,6 +35,11 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 });
 
 const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: { origin: process.env.CLIENT_ORIGIN ?? "*" },
+});
+registerSocketHandlers(io);
+
 const port = Number(process.env.PORT ?? 4000);
 
 httpServer.listen(port, () => {
