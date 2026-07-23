@@ -2,7 +2,7 @@ import type { Server, Socket } from "socket.io";
 import { prisma } from "../prisma.js";
 import { getGameState } from "../gameState.js";
 import { buildPublicState } from "./publicState.js";
-import { tryJoinByPseudo, reclaimParticipant, reconnectByToken, markDisconnected } from "./participants.js";
+import { tryJoinByPseudo, reclaimParticipant, reconnectByToken, markDisconnected, listConnectedPseudos } from "./participants.js";
 import {
   linkSocketToParticipant,
   unlinkSocket,
@@ -47,6 +47,11 @@ async function sendWelcomePayload(socket: Socket, participant: { id: string; pse
 
 export function registerSocketHandlers(io: Server) {
   io.on("connection", (socket) => {
+    // The main screen (and anyone else who hasn't joined as a participant yet) still
+    // needs the current snapshot right away, not just on the next phase transition.
+    buildPublicState().then((state) => socket.emit("state:update", state));
+    listConnectedPseudos().then((pseudos) => socket.emit("lobby:participants", pseudos));
+
     socket.on("participant:join", async ({ pseudo }: { pseudo?: string }, ack: Ack) => {
       const trimmed = (pseudo ?? "").trim();
       if (!trimmed) {
@@ -95,15 +100,20 @@ export function registerSocketHandlers(io: Server) {
         ack({ status: "not_found" });
         return;
       }
-      const participant = await reconnectByToken(token);
-      if (!participant) {
+      try {
+        const participant = await reconnectByToken(token);
+        if (!participant) {
+          ack({ status: "not_found" });
+          return;
+        }
+        linkSocketToParticipant(socket.id, participant.id);
+        await sendWelcomePayload(socket, participant);
+        await broadcastLobby(io);
+        ack({ status: "joined" });
+      } catch (err) {
+        console.error(err);
         ack({ status: "not_found" });
-        return;
       }
-      linkSocketToParticipant(socket.id, participant.id);
-      await sendWelcomePayload(socket, participant);
-      await broadcastLobby(io);
-      ack({ status: "joined" });
     });
 
     socket.on("admin:authenticate", ({ password }: { password?: string }, ack: Ack) => {
@@ -169,10 +179,14 @@ export function registerSocketHandlers(io: Server) {
     }
 
     socket.on("disconnect", async () => {
-      const participantId = unlinkSocket(socket.id);
-      if (participantId) {
-        await markDisconnected(participantId);
-        await broadcastLobby(io);
+      try {
+        const participantId = unlinkSocket(socket.id);
+        if (participantId) {
+          await markDisconnected(participantId);
+          await broadcastLobby(io);
+        }
+      } catch (err) {
+        console.error("Error handling disconnect", err);
       }
     });
   });
