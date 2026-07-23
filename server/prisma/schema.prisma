@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  title     String
+  order     Int
+  status    String   @default("PENDING") // PENDING | ACTIVE | DONE
+  nominees  Nominee[]
+  votes     Vote[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Nominee {
+  id         String   @id @default(uuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name       String
+  imageUrl   String?
+  order      Int
+  votes      Vote[]
+}
+
+model Participant {
+  id          String   @id @default(uuid())
+  pseudo      String   @unique
+  token       String   @unique
+  connected   Boolean  @default(true)
+  isAdmin     Boolean  @default(false)
+  votes       Vote[]
+  createdAt   DateTime @default(now())
+}
+
+model Vote {
+  id            String      @id @default(uuid())
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  categoryId    String
+  category      Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  nomineeId     String
+  nominee       Nominee     @relation(fields: [nomineeId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([participantId, categoryId])
+}
+
+model GameState {
+  id                String   @id @default("singleton")
+  phase             String   @default("LOBBY") // LOBBY | INTRO | VOTING | VOTE_CLOSED | REVEALING | RECAP | ENDED
+  currentCategoryId String?
+  revealStep        Int      @default(0) // 0 = none revealed yet, then counts down places revealed
+  timerEndsAt       DateTime?
+  updatedAt         DateTime @updatedAt
+}
