@@ -7,13 +7,14 @@ import { requireAdmin } from "../middleware/adminAuth.js";
 import { getGameState } from "../gameState.js";
 import { getCeremonyRecap } from "../recap.js";
 import { CeremonyReport } from "../pdf/CeremonyReport.js";
+import { UPLOADS_DIR } from "../config.js";
 
 export const exportRouter = Router();
 exportRouter.use(requireAdmin);
 
 function resolveImagePath(url: string): string | undefined {
   if (!url.startsWith("/uploads/")) return undefined;
-  const absolute = path.resolve("uploads", path.basename(url));
+  const absolute = path.resolve(UPLOADS_DIR, path.basename(url));
   return fs.existsSync(absolute) ? absolute : undefined;
 }
 

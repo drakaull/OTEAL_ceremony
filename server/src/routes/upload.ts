@@ -4,6 +4,7 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { requireAdmin } from "../middleware/adminAuth.js";
 import { rejectIfSetupLocked } from "../gameState.js";
+import { UPLOADS_DIR } from "../config.js";
 
 export const uploadRouter = Router();
 uploadRouter.use(requireAdmin);
@@ -11,7 +12,7 @@ uploadRouter.use(requireAdmin);
 const ALLOWED_MIME_TYPES = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
 
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, path.resolve("uploads")),
+  destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     cb(null, `${randomUUID()}${ext}`);

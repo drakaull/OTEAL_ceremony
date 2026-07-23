@@ -1,4 +1,6 @@
-const SERVER_URL = import.meta.env.VITE_SERVER_URL ?? "http://localhost:4000";
+// Unset in production: client and server share an origin there, so relative
+// paths (empty prefix) already resolve correctly.
+const SERVER_URL = import.meta.env.VITE_SERVER_URL ?? "";
 
 export class ApiError extends Error {
   status: number;
