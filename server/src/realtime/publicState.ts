@@ -1,6 +1,7 @@
 import { prisma } from "../prisma.js";
 import { getGameState } from "../gameState.js";
 import { computePodium, podiumRevealOrder } from "../podium.js";
+import { getCeremonyRecap } from "../recap.js";
 
 export async function buildPublicState() {
   const state = await getGameState();
@@ -21,16 +22,7 @@ export async function buildPublicState() {
     revealedPlaces = order.slice(0, state.revealStep);
   }
 
-  let recap: Array<{ categoryId: string; title: string; podium: Awaited<ReturnType<typeof computePodium>>["places"] }> = [];
-  if (state.phase === "RECAP" || state.phase === "ENDED") {
-    const categories = await prisma.category.findMany({ orderBy: { order: "asc" } });
-    recap = await Promise.all(
-      categories.map(async (c) => {
-        const podium = await computePodium(c.id);
-        return { categoryId: c.id, title: c.title, podium: podium.places.slice(0, 3) };
-      }),
-    );
-  }
+  const recap = state.phase === "RECAP" || state.phase === "ENDED" ? await getCeremonyRecap() : [];
 
   return {
     phase: state.phase,

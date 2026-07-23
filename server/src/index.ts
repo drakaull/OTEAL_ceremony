@@ -9,6 +9,7 @@ import { adminRouter } from "./routes/admin.js";
 import { categoriesRouter } from "./routes/categories.js";
 import { nomineesRouter } from "./routes/nominees.js";
 import { uploadRouter } from "./routes/upload.js";
+import { exportRouter } from "./routes/export.js";
 import { registerSocketHandlers } from "./realtime/socket.js";
 
 const uploadsDir = path.resolve("uploads");
@@ -27,6 +28,7 @@ app.use("/api/admin", adminRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/nominees", nomineesRouter);
 app.use("/api/upload", uploadRouter);
+app.use("/api/export", exportRouter);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
