@@ -12,6 +12,11 @@ import { uploadRouter } from "./routes/upload.js";
 import { exportRouter } from "./routes/export.js";
 import { registerSocketHandlers } from "./realtime/socket.js";
 
+// This runs live during a one-off party: a crash mid-ceremony can't be "restarted later".
+// Log and keep serving rather than let one unexpected error take the whole evening down.
+process.on("unhandledRejection", (err) => console.error("Unhandled rejection:", err));
+process.on("uncaughtException", (err) => console.error("Uncaught exception:", err));
+
 const uploadsDir = path.resolve("uploads");
 fs.mkdirSync(uploadsDir, { recursive: true });
 

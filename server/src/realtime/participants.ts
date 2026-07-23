@@ -49,7 +49,9 @@ export async function reconnectByToken(token: string) {
 }
 
 export async function markDisconnected(participantId: string) {
-  await prisma.participant.update({
+  // updateMany (not update): the participant may have already been wiped by an admin
+  // reset while this socket was still connected — that must not throw.
+  await prisma.participant.updateMany({
     where: { id: participantId },
     data: { connected: false },
   });
