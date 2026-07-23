@@ -1,3 +1,9 @@
+import { ParticipantExperience } from "../components/ParticipantExperience";
+
 export function PlayView() {
-  return <div className="screen">Vue participant — à venir</div>;
+  return (
+    <div className="screen screen--centered">
+      <ParticipantExperience />
+    </div>
+  );
 }
