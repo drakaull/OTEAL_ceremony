@@ -30,7 +30,9 @@ interface GameContextValue {
   isAdmin: boolean;
   adminError: string | null;
   authenticateAdmin: (password: string) => Promise<boolean>;
-  adminAction: (event: "admin:startCeremony" | "admin:startVoting" | "admin:reveal" | "admin:nextCategory" | "admin:endCeremony") => Promise<SimpleAck>;
+  adminAction: (
+    event: "admin:startCeremony" | "admin:startVoting" | "admin:reveal" | "admin:nextCategory" | "admin:endCeremony" | "admin:reset",
+  ) => Promise<SimpleAck>;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -171,7 +173,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }
 
-  function adminAction(event: "admin:startCeremony" | "admin:startVoting" | "admin:reveal" | "admin:nextCategory" | "admin:endCeremony"): Promise<SimpleAck> {
+  function adminAction(
+    event: "admin:startCeremony" | "admin:startVoting" | "admin:reveal" | "admin:nextCategory" | "admin:endCeremony" | "admin:reset",
+  ): Promise<SimpleAck> {
     return new Promise((resolve) => {
       socket.emit(event, {}, (ack: SimpleAck) => {
         if (ack.status === "error") setAdminError(ack.message);

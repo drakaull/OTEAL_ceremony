@@ -17,6 +17,7 @@ import {
   revealNext,
   nextCategory,
   endCeremony,
+  resetCeremonyAndBroadcast,
   broadcastLobby,
   broadcastVotesProgress,
   GameFlowError,
@@ -144,6 +145,7 @@ export function registerSocketHandlers(io: Server) {
       "admin:reveal": revealNext,
       "admin:nextCategory": nextCategory,
       "admin:endCeremony": endCeremony,
+      "admin:reset": resetCeremonyAndBroadcast,
     };
 
     for (const [eventName, handler] of Object.entries(adminActions)) {

@@ -4,6 +4,7 @@ import { getGameState } from "../gameState.js";
 import { computePodium, podiumRevealOrder } from "../podium.js";
 import { buildPublicState } from "./publicState.js";
 import { listConnectedPseudos } from "./participants.js";
+import { resetCeremony } from "../ceremonyReset.js";
 
 const VOTE_DURATION_SECONDS = Number(process.env.VOTE_DURATION_SECONDS ?? 30);
 
@@ -138,6 +139,15 @@ export async function endCeremony(io: Server) {
   if (state.phase !== "RECAP") throw new GameFlowError("Impossible de terminer maintenant.");
   await updateGameState({ phase: "ENDED" });
   await broadcastState(io);
+}
+
+export async function resetCeremonyAndBroadcast(io: Server) {
+  const state = await getGameState();
+  if (state.phase !== "ENDED") throw new GameFlowError("La cérémonie doit être terminée avant la remise à zéro.");
+
+  await resetCeremony();
+  await broadcastState(io);
+  await broadcastLobby(io);
 }
 
 export { GameFlowError };

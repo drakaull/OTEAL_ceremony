@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { prisma } from "../prisma.js";
 import { requireAdmin } from "../middleware/adminAuth.js";
 import { getGameState } from "../gameState.js";
+import { resetCeremony } from "../ceremonyReset.js";
 
 export const adminRouter = Router();
 
@@ -14,6 +14,11 @@ adminRouter.post("/login", (req, res) => {
   res.json({ ok: true });
 });
 
+adminRouter.get("/status", requireAdmin, async (_req, res) => {
+  const state = await getGameState();
+  res.json({ phase: state.phase });
+});
+
 /** Wipes categories/nominees/participants/votes and returns to LOBBY, ready for a future ceremony. */
 adminRouter.post("/reset", requireAdmin, async (_req, res) => {
   const state = await getGameState();
@@ -22,12 +27,6 @@ adminRouter.post("/reset", requireAdmin, async (_req, res) => {
     return;
   }
 
-  await prisma.category.deleteMany({});
-  await prisma.participant.deleteMany({});
-  await prisma.gameState.update({
-    where: { id: "singleton" },
-    data: { phase: "LOBBY", currentCategoryId: null, revealStep: 0, timerEndsAt: null },
-  });
-
+  await resetCeremony();
   res.json({ ok: true });
 });

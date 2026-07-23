@@ -29,6 +29,7 @@ export function imageUrl(path: string) {
 
 export const api = {
   adminLogin: (password: string) => request<{ ok: true }>("/api/admin/login", { method: "POST", body: JSON.stringify({ password }) }),
+  adminStatus: (password: string) => request<{ phase: string }>("/api/admin/status", {}, password),
   adminReset: (password: string) => request("/api/admin/reset", { method: "POST" }, password),
 
   listCategories: (password: string) => request<CategoryDto[]>("/api/categories", {}, password),
