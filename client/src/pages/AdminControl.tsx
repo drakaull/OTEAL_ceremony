@@ -1,3 +1,11 @@
+import { ParticipantExperience } from "../components/ParticipantExperience";
+import { AdminControlPanel } from "../components/AdminControlPanel";
+
 export function AdminControl() {
-  return <div className="screen">Panneau admin — à venir</div>;
+  return (
+    <div className="screen">
+      <ParticipantExperience />
+      <AdminControlPanel />
+    </div>
+  );
 }
