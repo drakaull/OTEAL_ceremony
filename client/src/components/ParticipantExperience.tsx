@@ -3,8 +3,20 @@ import { useGame } from "../context/GameProvider";
 import { CountdownTimer } from "./CountdownTimer";
 
 export function ParticipantExperience() {
-  const { connected, state, participant, joinStatus, reclaimOffer, joinError, myVote, join, confirmReclaim, cancelReclaim, castVote } =
-    useGame();
+  const {
+    connected,
+    state,
+    lobbyParticipants,
+    participant,
+    joinStatus,
+    reclaimOffer,
+    joinError,
+    myVote,
+    join,
+    confirmReclaim,
+    cancelReclaim,
+    castVote,
+  } = useGame();
   const [pseudoInput, setPseudoInput] = useState("");
   const [voteError, setVoteError] = useState<string | null>(null);
 
@@ -73,6 +85,16 @@ export function ParticipantExperience() {
         <>
           <h2 style={{ marginTop: 16 }}>Vous êtes dans la partie !</h2>
           <p className="muted">En attente du début de la cérémonie…</p>
+          <p className="badge" style={{ marginTop: 16 }}>
+            {lobbyParticipants.length} participant{lobbyParticipants.length > 1 ? "s" : ""}
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", marginTop: 12 }}>
+            {lobbyParticipants.map((pseudo) => (
+              <span key={pseudo} className="badge">
+                {pseudo}
+              </span>
+            ))}
+          </div>
         </>
       )}
 
