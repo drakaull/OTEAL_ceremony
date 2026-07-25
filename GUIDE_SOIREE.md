@@ -1,10 +1,38 @@
 # Guide de démarrage — soirée cérémonie
 
-Ce guide explique comment lancer le site pour une soirée, tant qu'il n'est pas encore déployé en ligne (voir `README.md` pour le déploiement Railway).
+## Le site est en ligne — pas d'installation nécessaire
 
-Le site tourne en local sur l'ordinateur qui sert d'écran principal. Les téléphones des participants doivent être connectés au **même réseau WiFi** que cet ordinateur pour pouvoir rejoindre.
+Le site est hébergé et accessible depuis n'importe où (plus besoin d'être sur le même WiFi) :
 
-## 1. Une seule fois (installation)
+**🔗 https://oteal-awards-ceremony.up.railway.app**
+
+| Écran | Adresse | Qui l'utilise |
+|---|---|---|
+| Écran principal (projeté/TV) | `/main` | Personne n'interagit dessus |
+| Back-office (créer les catégories) | `/admin/setup` | L'organisateur, **avant** la soirée |
+| Panneau admin (pilote la cérémonie) | `/admin/control` | L'organisateur, sur son téléphone ou laptop |
+| Vue joueur | `/play` | Chaque invité, sur son téléphone |
+
+Mot de passe admin : `oteal_awards26`
+
+Les invités n'ont pas besoin de taper l'adresse : ils scannent le QR code affiché sur l'écran principal une fois la cérémonie en LOBBY.
+
+## Avant la soirée
+
+Aller sur `/admin/setup`, se connecter avec le mot de passe, et créer toutes les catégories + leurs nommés (avec photos si besoin). Une fois la cérémonie démarrée, cet écran repasse en lecture seule.
+
+## En cas de souci
+
+- **Il faut relancer une nouvelle soirée avec les mêmes catégories qu'avant** : dans le panneau admin, une fois la cérémonie terminée (`ENDED`), le bouton "Remise à zéro" supprime tout (catégories, participants) pour repartir de zéro — il faudra donc recréer les catégories dans `/admin/setup`.
+- **Le site semble en panne** : vérifier le statut du service sur [railway.app](https://railway.app) (projet `awake-inspiration`).
+
+---
+
+## Alternative : lancer le site en local (sans hébergement)
+
+Utile pour développer/tester, ou si l'hébergement en ligne n'est pas disponible. Dans ce mode, les téléphones doivent être sur le **même réseau WiFi** que l'ordinateur qui fait tourner le site.
+
+### 1. Une seule fois (installation)
 
 Depuis la racine du projet :
 
@@ -19,9 +47,7 @@ Copy-Item server\.env.example server\.env
 Copy-Item client\.env.example client\.env
 ```
 
-Ouvrir `server\.env` et changer `ADMIN_PASSWORD` si besoin (c'est le mot de passe pour accéder au back-office et au panneau admin).
-
-## 2. Trouver l'adresse IP locale de l'ordinateur
+### 2. Trouver l'adresse IP locale de l'ordinateur
 
 Nécessaire pour que les téléphones puissent se connecter. Dans PowerShell :
 
@@ -31,7 +57,7 @@ ipconfig
 
 Chercher la ligne **Adresse IPv4** de la carte WiFi active (exemple : `192.168.1.42`).
 
-## 3. Configurer les `.env` avec cette IP
+### 3. Configurer les `.env` avec cette IP
 
 Ouvrir `client\.env` et mettre l'IP trouvée à la place de `localhost` :
 
@@ -47,7 +73,7 @@ CLIENT_ORIGIN="*"
 
 *(Sur le PC lui-même, ça continue de marcher normalement même avec l'IP à la place de `localhost`.)*
 
-## 4. Démarrer le serveur et le client
+### 4. Démarrer le serveur et le client
 
 Deux terminaux séparés, à la racine du projet.
 
@@ -64,27 +90,19 @@ npx vite --host
 ```
 Le `--host` est important : sans lui, les téléphones ne peuvent pas se connecter.
 
-## 5. Préparer les catégories AVANT que les invités arrivent
+### 5. Les écrans à utiliser (remplacer `192.168.1.42` par l'IP trouvée à l'étape 2)
 
-Aller sur `http://localhost:5173/admin/setup` (mot de passe : celui de `ADMIN_PASSWORD`), et créer toutes les catégories + leurs nommés (avec photos si besoin). Une fois la cérémonie démarrée, cet écran repasse en lecture seule.
+| Écran | Adresse |
+|---|---|
+| Écran principal | `http://localhost:5173/main` |
+| Back-office | `http://localhost:5173/admin/setup` |
+| Panneau admin | `http://192.168.1.42:5173/admin/control` |
+| Vue joueur | `http://192.168.1.42:5173/play` |
 
-## 6. Les écrans à utiliser le soir J
-
-Remplacer `192.168.1.42` par l'IP trouvée à l'étape 2.
-
-| Écran | Adresse | Qui l'utilise |
-|---|---|---|
-| Écran principal (projeté/TV) | `http://localhost:5173/main` | Personne n'interagit dessus |
-| Panneau admin (contrôle la cérémonie) | `http://192.168.1.42:5173/admin/control` | L'organisateur, sur son propre téléphone ou laptop |
-| Vue joueur | `http://192.168.1.42:5173/play` | Chaque invité, sur son téléphone |
-
-Les invités n'ont pas besoin de taper l'adresse : ils scannent le QR code affiché sur l'écran principal une fois la cérémonie en LOBBY.
-
-## 7. Arrêter à la fin
+### 6. Arrêter à la fin
 
 `Ctrl+C` dans chacun des deux terminaux.
 
-## En cas de souci
+### Souci fréquent en local
 
-- **Un téléphone n'arrive pas à rejoindre** : vérifier qu'il est bien sur le même WiFi que l'ordinateur, et que l'étape 3 (IP dans `client\.env` + redémarrage du client) a bien été faite.
-- **Il faut relancer une nouvelle soirée avec les mêmes catégories qu'avant** : dans le panneau admin, une fois la cérémonie terminée (`ENDED`), le bouton "Remise à zéro" supprime tout (catégories, participants) pour repartir de zéro — il faudra donc recréer les catégories dans `/admin/setup`.
+**Un téléphone n'arrive pas à rejoindre** : vérifier qu'il est bien sur le même WiFi que l'ordinateur, et que l'étape 3 (IP dans `client\.env` + redémarrage du client) a bien été faite.

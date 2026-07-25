@@ -15,6 +15,15 @@ npm run dev:server
 npm run dev:client
 ```
 
+## Instance en ligne
+
+- **URL** : https://oteal-awards-ceremony.up.railway.app
+- Écran principal : `/main`
+- Back-office (catégories/nommés) : `/admin/setup`
+- Panneau admin (pilotage de la cérémonie) : `/admin/control`
+- Vue joueur : `/play`
+- Mot de passe admin : `oteal_awards26`
+
 ## Déploiement (Railway)
 
 Le serveur sert à la fois l'API/WebSocket et le build du client (un seul service, un seul process Node) :
