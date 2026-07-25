@@ -9,9 +9,10 @@ function rankLabel(rank: number) {
 }
 
 function PodiumPlaceRow({ place }: { place: PodiumPlace }) {
+  const rankClass = place.rank <= 3 ? ` podium-rank--${place.rank}` : "";
   return (
     <div className="podium-place">
-      <span className="podium-rank">{rankLabel(place.rank)}</span>
+      <span className={`podium-rank${rankClass}`}>{rankLabel(place.rank)}</span>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 12, flex: 1 }}>
         {place.nominees.map((nominee) => (
           <div key={nominee.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
