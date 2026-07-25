@@ -5,6 +5,7 @@ import { computePodium, podiumRevealOrder } from "../podium.js";
 import { buildPublicState } from "./publicState.js";
 import { listConnectedPseudos } from "./participants.js";
 import { resetCeremony } from "../ceremonyReset.js";
+import { clearAllParticipantLinks } from "./connectionStore.js";
 
 const VOTE_DURATION_SECONDS = Number(process.env.VOTE_DURATION_SECONDS ?? 30);
 
@@ -24,6 +25,12 @@ export async function broadcastState(io: Server) {
 export async function broadcastLobby(io: Server) {
   const pseudos = await listConnectedPseudos();
   io.emit("lobby:participants", pseudos);
+}
+
+/** Tells every connected client its participant identity is gone (Participant rows were wiped) so it re-shows the pseudo entry screen instead of silently failing on the next action. */
+function forceParticipantsToRejoin(io: Server) {
+  clearAllParticipantLinks();
+  io.emit("participant:forceRejoin");
 }
 
 export async function broadcastVotesProgress(io: Server) {
@@ -145,7 +152,24 @@ export async function resetCeremonyAndBroadcast(io: Server) {
   const state = await getGameState();
   if (state.phase !== "ENDED") throw new GameFlowError("La cérémonie doit être terminée avant la remise à zéro.");
 
+  clearVoteTimer();
   await resetCeremony();
+  forceParticipantsToRejoin(io);
+  await broadcastState(io);
+  await broadcastLobby(io);
+}
+
+/**
+ * Emergency "start this ceremony over" for the admin: usable at any phase, keeps the
+ * configured categories/nominees (unlike resetCeremonyAndBroadcast, which is for wiping
+ * everything between two different evenings), just clears participants/votes and returns
+ * to LOBBY.
+ */
+export async function cancelCeremony(io: Server) {
+  clearVoteTimer();
+  await prisma.participant.deleteMany({}); // cascades to Vote
+  await updateGameState({ phase: "LOBBY", currentCategoryId: null, revealStep: 0, timerEndsAt: null });
+  forceParticipantsToRejoin(io);
   await broadcastState(io);
   await broadcastLobby(io);
 }

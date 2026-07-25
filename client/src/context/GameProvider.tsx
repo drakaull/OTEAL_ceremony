@@ -31,7 +31,14 @@ interface GameContextValue {
   adminError: string | null;
   authenticateAdmin: (password: string) => Promise<boolean>;
   adminAction: (
-    event: "admin:startCeremony" | "admin:startVoting" | "admin:reveal" | "admin:nextCategory" | "admin:endCeremony" | "admin:reset",
+    event:
+      | "admin:startCeremony"
+      | "admin:startVoting"
+      | "admin:reveal"
+      | "admin:nextCategory"
+      | "admin:endCeremony"
+      | "admin:reset"
+      | "admin:cancelCeremony",
   ) => Promise<SimpleAck>;
 }
 
@@ -92,6 +99,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
     function onVotesProgress(progress: VotesProgress) {
       setVotesProgress(progress);
     }
+    function onForceRejoin() {
+      // The admin wiped all participants (cancel or full reset): our identity no longer
+      // exists server-side, so drop it locally and go back to the pseudo entry screen.
+      localStorage.removeItem(TOKEN_KEY);
+      setParticipant(null);
+      setMyVote(null);
+      setReclaimOffer(null);
+      setJoinStatus("need-pseudo");
+    }
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
@@ -99,6 +115,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     socket.on("state:update", onStateUpdate);
     socket.on("lobby:participants", onLobby);
     socket.on("votes:progress", onVotesProgress);
+    socket.on("participant:forceRejoin", onForceRejoin);
 
     if (socket.connected) onConnect();
 
@@ -109,6 +126,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       socket.off("state:update", onStateUpdate);
       socket.off("lobby:participants", onLobby);
       socket.off("votes:progress", onVotesProgress);
+      socket.off("participant:forceRejoin", onForceRejoin);
     };
   }, []);
 
@@ -174,7 +192,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }
 
   function adminAction(
-    event: "admin:startCeremony" | "admin:startVoting" | "admin:reveal" | "admin:nextCategory" | "admin:endCeremony" | "admin:reset",
+    event:
+      | "admin:startCeremony"
+      | "admin:startVoting"
+      | "admin:reveal"
+      | "admin:nextCategory"
+      | "admin:endCeremony"
+      | "admin:reset"
+      | "admin:cancelCeremony",
   ): Promise<SimpleAck> {
     return new Promise((resolve) => {
       socket.emit(event, {}, (ack: SimpleAck) => {

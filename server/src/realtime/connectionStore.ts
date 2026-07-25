@@ -34,3 +34,9 @@ export function markSocketAsAdmin(socketId: string) {
 export function isSocketAdmin(socketId: string): boolean {
   return adminSocketIds.has(socketId);
 }
+
+/** Drops all socket<->participant links (e.g. after every Participant row was wiped from the DB). Admin sessions are untouched. */
+export function clearAllParticipantLinks() {
+  socketIdToParticipantId.clear();
+  participantIdToSocketId.clear();
+}
