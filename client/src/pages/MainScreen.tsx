@@ -8,6 +8,15 @@ function rankLabel(rank: number) {
   return rank === 1 ? "1er" : `${rank}e`;
 }
 
+/** Bigger cards when there are few nominees, smaller once there are many, so the grid always fills the screen nicely. */
+function nomineeCardBasis(count: number): number {
+  if (count <= 2) return 420;
+  if (count <= 4) return 320;
+  if (count <= 6) return 250;
+  if (count <= 9) return 200;
+  return 160;
+}
+
 function PodiumPlaceRow({ place }: { place: PodiumPlace }) {
   const rankClass = place.rank <= 3 ? ` podium-rank--${place.rank}` : "";
   return (
@@ -67,7 +76,14 @@ export function MainScreen() {
         {state.phase === "VOTING" && state.timerEndsAt ? <CountdownTimer endsAt={state.timerEndsAt} /> : null}
         {state.phase === "VOTE_CLOSED" ? <p className="muted">Vote terminé — préparation de la révélation…</p> : null}
 
-        <div className="nominee-grid" style={{ marginTop: 24, maxWidth: 1300 }}>
+        <div
+          className="nominee-grid"
+          style={{
+            marginTop: 24,
+            maxWidth: 1300,
+            ["--nominee-basis" as string]: `${nomineeCardBasis(state.currentCategory.nominees.length)}px`,
+          }}
+        >
           {state.currentCategory.nominees.map((nominee) => (
             <div key={nominee.id} className="nominee-card" style={{ cursor: "default" }}>
               {nominee.imageUrl ? <img src={imageUrl(nominee.imageUrl)} alt="" /> : null}

@@ -233,10 +233,16 @@ input {
 }
 
 .nominee-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
   width: 100%;
+}
+
+.nominee-grid .nominee-card {
+  flex: 1 1 var(--nominee-basis, 200px);
+  max-width: var(--nominee-basis, 200px);
 }
 
 .nominee-card {
@@ -453,7 +459,6 @@ input {
 }
 
 .main-screen .nominee-grid {
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 28px;
 }
 
