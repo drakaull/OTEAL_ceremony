@@ -31,7 +31,7 @@ export function MainScreen() {
 
   if (!state) {
     return (
-      <div className="screen screen--centered">
+      <div className="screen main-screen screen--centered">
         <p className="muted">Connexion au serveur…</p>
       </div>
     );
@@ -39,7 +39,7 @@ export function MainScreen() {
 
   if (state.phase === "LOBBY") {
     return (
-      <div className="screen screen--centered">
+      <div className="screen main-screen screen--centered">
         <h1>🏆 Cérémonie des Oscars</h1>
         <p className="muted" style={{ marginBottom: 24 }}>
           Scannez pour rejoindre
@@ -62,12 +62,12 @@ export function MainScreen() {
   if ((state.phase === "INTRO" || state.phase === "VOTING" || state.phase === "VOTE_CLOSED") && state.currentCategory) {
     const voterSet = new Set(votesProgress?.voterPseudos ?? []);
     return (
-      <div className="screen">
+      <div className="screen main-screen">
         <h1>{state.currentCategory.title}</h1>
         {state.phase === "VOTING" && state.timerEndsAt ? <CountdownTimer endsAt={state.timerEndsAt} /> : null}
         {state.phase === "VOTE_CLOSED" ? <p className="muted">Vote terminé — préparation de la révélation…</p> : null}
 
-        <div className="nominee-grid" style={{ marginTop: 24, maxWidth: 900 }}>
+        <div className="nominee-grid" style={{ marginTop: 24, maxWidth: 1300 }}>
           {state.currentCategory.nominees.map((nominee) => (
             <div key={nominee.id} className="nominee-card" style={{ cursor: "default" }}>
               {nominee.imageUrl ? <img src={imageUrl(nominee.imageUrl)} alt="" /> : null}
@@ -77,7 +77,7 @@ export function MainScreen() {
         </div>
 
         {state.phase === "VOTING" && votesProgress ? (
-          <div style={{ marginTop: 32, width: "100%", maxWidth: 700 }}>
+          <div style={{ marginTop: 32, width: "100%", maxWidth: 1000 }}>
             <p className="badge">
               {votesProgress.voted}/{votesProgress.total} ont voté
             </p>
@@ -96,9 +96,9 @@ export function MainScreen() {
 
   if (state.phase === "REVEALING" && state.currentCategory) {
     return (
-      <div className="screen">
+      <div className="screen main-screen">
         <h1>{state.currentCategory.title}</h1>
-        <div style={{ width: "100%", maxWidth: 700, marginTop: 24 }}>
+        <div style={{ width: "100%", maxWidth: 1000, marginTop: 24 }}>
           {[...state.revealedPlaces].reverse().map((place) => (
             <PodiumPlaceRow key={place.rank} place={place} />
           ))}
@@ -114,9 +114,9 @@ export function MainScreen() {
 
   if (state.phase === "RECAP") {
     return (
-      <div className="screen">
+      <div className="screen main-screen">
         <h1>🏆 Palmarès de la soirée</h1>
-        <div style={{ width: "100%", maxWidth: 700 }}>
+        <div style={{ width: "100%", maxWidth: 1000 }}>
           {state.recap.map((entry) => (
             <div key={entry.categoryId} className="card card--wide" style={{ marginBottom: 16, textAlign: "left" }}>
               <h3>{entry.title}</h3>
@@ -131,7 +131,7 @@ export function MainScreen() {
   }
 
   return (
-    <div className="screen screen--centered">
+    <div className="screen main-screen screen--centered">
       <h1>🎬 Merci et à bientôt !</h1>
     </div>
   );
