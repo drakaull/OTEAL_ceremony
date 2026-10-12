@@ -22,7 +22,6 @@ npm run dev:client
 - Back-office (catégories/nommés) : `/admin/setup`
 - Panneau admin (pilotage de la cérémonie) : `/admin/control`
 - Vue joueur : `/play`
-- Mot de passe admin : `oteal_awards26`
 
 ## Déploiement (Railway)
 
